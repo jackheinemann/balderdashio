@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -45,7 +47,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 padding: const EdgeInsets.only(top: 30.0),
                 child: RaisedButton(
                     onPressed: () {
+                      Storage storage = window.localStorage;
+
+                      if (storage['name'] == null)
+                        print('no name saved');
+                      else
+                        print(storage['name']);
                       // saved to local storage then navigate
+                      String name = nameController.text;
+                      if (name == '') return;
+
+                      print('submitted name $name');
+                      storage['name'] = name;
                     },
                     child: Container(
                       padding: EdgeInsets.all(8),
