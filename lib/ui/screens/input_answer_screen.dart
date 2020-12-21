@@ -65,6 +65,7 @@ class _InputAnswerScreenState extends State<InputAnswerScreen> {
                   Flexible(
                       child: Text(
                     '"$prompt"',
+                    textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                     softWrap: true,
                   )),

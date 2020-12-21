@@ -16,31 +16,38 @@ class ResultsCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ListTile(
-                  title: Text(
-                    answer.text,
-                  ),
-                  trailing: !answer.isReal
-                      ? Text(
-                          answer.creator,
-                          overflow: TextOverflow.ellipsis,
-                        )
-                      : null,
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  child: Text(answer.text,
+                      softWrap: true,
+                      style: answer.isReal
+                          ? TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
+                          : TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w500)),
                 ),
+                Text(answer.isReal ? 'Real Answer' : answer.creator,
+                    style: TextStyle(fontSize: 16)),
                 Divider(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       'Votes',
-                      style: TextStyle(fontSize: 15),
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                     ),
-                    Text('${answer.votes.length}')
+                    Text(
+                      '${answer.votes.length}',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    )
                   ],
                 ),
                 Column(
-                  children: answer.votes.map((e) => Text('- $e')).toList(),
-                )
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: answer.votes.map((e) {
+                      return Text(e, style: TextStyle(fontSize: 15));
+                    }).toList()),
               ],
             )));
   }

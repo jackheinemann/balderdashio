@@ -1,4 +1,5 @@
 import 'package:balderdashio/business_logic/models/answer.dart';
+import 'package:balderdashio/business_logic/models/player.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -89,8 +90,10 @@ class Database {
   }
 
   Future<List<Answer>> getAnswers() async {
-    QuerySnapshot answersSnap =
-        await firestore.collection('balderdash_answers').get();
+    QuerySnapshot answersSnap = await firestore
+        .collection('balderdash_answers')
+        .orderBy('text', descending: true)
+        .get();
 
     List<Answer> answers = [];
 
@@ -111,8 +114,55 @@ class Database {
     });
 
     firestore
+        .collection('balderdash_users')
+        .doc(creator)
+        .update({'score': FieldValue.increment(1)});
+
+    firestore
         .collection('balderdash_logic')
         .doc('gamestate')
         .update({'votesSubmitted': FieldValue.increment(1)});
+  }
+
+  Future<List<Player>> getScores() async {
+    QuerySnapshot snapshot =
+        await firestore.collection('balderdash_users').get();
+
+    List<Player> players = [];
+
+    for (DocumentSnapshot doc in snapshot.docs) {
+      players.add(Player.fromDatabase(doc));
+    }
+
+    return players;
+  }
+
+  Future<bool> endRound() async {
+    DocumentReference gamestateRef =
+        firestore.collection('balderdash_logic').doc('gamestate');
+
+    // check if moderator index is at its max
+    DocumentSnapshot snapshot = await gamestateRef.get();
+    int modIndex = snapshot.data()['moderatorIndex'];
+    int playerCount =
+        List<String>.from(snapshot.data()['moderatorOrder']).length;
+
+    if (modIndex == playerCount - 1)
+      modIndex = 0;
+    else
+      modIndex += 1;
+
+    // clear answersSubmitted
+    // clear votesSubmitted
+    // reset gamePhase
+    // increment moderator index and/or reset it
+    gamestateRef.update({
+      'answersSubmitted': 0,
+      'votesSubmitted': 0,
+      'gamePhase': 2,
+      'moderatorIndex': modIndex
+    });
+
+    return true;
   }
 }

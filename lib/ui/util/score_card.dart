@@ -11,7 +11,8 @@ class ScoreCard extends StatelessWidget {
     return Card(
       child: ListTile(
         title: Text(player.name),
-        trailing: Text('${player.score} points'),
+        trailing:
+            Text('${player.score} ${player.score == 1 ? 'point' : 'points'}'),
       ),
     );
   }

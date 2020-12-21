@@ -20,15 +20,23 @@ class AnswerCard extends StatelessWidget {
       padding: const EdgeInsets.all(2.0),
       child: Card(
         child: ListTile(
-          tileColor: isSelected ?? false ? Colors.green[200] : Colors.white,
+          tileColor: showName
+              ? (answer.isReal ? Colors.blue[200] : Colors.white)
+              : (isSelected ?? false ? Colors.green[200] : Colors.white),
           onTap: () {
             this.onSelect();
           },
           title: Text(
             answer.text,
-            style: TextStyle(fontSize: 18),
+            style: TextStyle(
+                fontSize: 18,
+                fontWeight: showName
+                    ? (answer.isReal ? FontWeight.w500 : FontWeight.normal)
+                    : FontWeight.normal),
           ),
-          subtitle: showName ? Text(answer.creator) : null,
+          subtitle: showName
+              ? Text(answer.isReal ? 'Real Answer' : answer.creator)
+              : null,
         ),
       ),
     );

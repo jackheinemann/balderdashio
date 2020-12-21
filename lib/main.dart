@@ -73,7 +73,10 @@ Widget validateIncomingUser(
     InputRealScreen(isModerator: isModerator),
     InputAnswerScreen(isModerator: isModerator),
     VoteScreen(isModerator: isModerator, category: category, prompt: prompt),
-    ResultsScreen()
+    //ResultsScreen(isModerator: isModerator),
+    ScoreScreen(
+      isModerator: isModerator,
+    )
   ];
 
   return gamePhases[gamePhase];

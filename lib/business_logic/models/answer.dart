@@ -14,6 +14,6 @@ class Answer {
     text = answerData['text'];
     creator = answerData['creator'];
     votes = List<String>.from(answerData['votes']);
-    isReal = answerData[isReal];
+    isReal = answerData['isReal'];
   }
 }
