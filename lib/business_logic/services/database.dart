@@ -67,10 +67,11 @@ class Database {
 
     firestore.collection('balderdash_answers').doc('$creator answer').set(
         {'text': text, 'creator': creator, 'votes': votes, 'isReal': isReal});
-  }
 
-  Stream<QuerySnapshot> listenForAnswers() {
-    return firestore.collection('balderdash_answers').snapshots();
+    firestore
+        .collection('balderdash_logic')
+        .doc('gamestate')
+        .update({'answersSubmitted': FieldValue.increment(1)});
   }
 
   Stream<DocumentSnapshot> gamestateStream() {
@@ -85,5 +86,18 @@ class Database {
         .collection('balderdash_logic')
         .doc('gamestate')
         .update({'gamePhase': gamePhase});
+  }
+
+  Future<List<Answer>> getAnswers() async {
+    QuerySnapshot answersSnap =
+        await firestore.collection('balderdash_answers').get();
+
+    List<Answer> answers = [];
+
+    for (DocumentSnapshot doc in answersSnap.docs) {
+      answers.add(Answer.fromDatabase(doc));
+    }
+
+    return answers;
   }
 }

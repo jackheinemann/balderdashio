@@ -64,12 +64,15 @@ Widget validateIncomingUser(
 
   int gamePhase = data['gamePhase'];
 
+  String category = data['activeCategory'];
+  String prompt = data['activePrompt'];
+
   List<Widget> gamePhases = [
     LoginScreen(),
     LobbyScreen(isModerator: isModerator),
     InputRealScreen(isModerator: isModerator),
     InputAnswerScreen(isModerator: isModerator),
-    VoteScreen(isModerator: isModerator),
+    VoteScreen(isModerator: isModerator, category: category, prompt: prompt),
     ResultsScreen()
   ];
 
