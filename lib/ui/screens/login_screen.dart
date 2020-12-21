@@ -74,8 +74,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             context: context, builder: (context) => dialog);
                         return;
                       }
-
-                      database.updateGamePhase(1);
                     },
                     child: Container(
                       padding: EdgeInsets.all(8),

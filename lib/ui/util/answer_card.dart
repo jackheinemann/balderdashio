@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class AnswerCard extends StatelessWidget {
   final bool isSelected;
-  final Function(Answer) onSelect;
+  final Function() onSelect;
   final bool showName;
 
   final Answer answer;
@@ -22,7 +22,7 @@ class AnswerCard extends StatelessWidget {
         child: ListTile(
           tileColor: isSelected ?? false ? Colors.green[200] : Colors.white,
           onTap: () {
-            this.onSelect(answer);
+            this.onSelect();
           },
           title: Text(
             answer.text,

@@ -100,4 +100,19 @@ class Database {
 
     return answers;
   }
+
+  void submitVote(Answer answer, String voter) {
+    String creator = answer.creator;
+
+    String docID = '$creator answer';
+
+    firestore.collection('balderdash_answers').doc(docID).update({
+      'votes': FieldValue.arrayUnion([voter])
+    });
+
+    firestore
+        .collection('balderdash_logic')
+        .doc('gamestate')
+        .update({'votesSubmitted': FieldValue.increment(1)});
+  }
 }

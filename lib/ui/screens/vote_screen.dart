@@ -1,4 +1,7 @@
+import 'dart:html';
+
 import 'package:balderdashio/business_logic/models/answer.dart';
+import 'package:balderdashio/business_logic/services/confirm_dialog.dart';
 import 'package:balderdashio/business_logic/services/database.dart';
 import 'package:balderdashio/ui/screens/results_screen.dart';
 import 'package:balderdashio/ui/util/answer_card.dart';
@@ -21,9 +24,13 @@ class _VoteScreenState extends State<VoteScreen> {
   String category;
   String prompt;
 
-  String selectedAnswer;
+  int selectedIndex;
+
+  String name;
 
   Database database = new Database();
+
+  bool voteSubmitted = false;
 
   @override
   void initState() {
@@ -32,6 +39,7 @@ class _VoteScreenState extends State<VoteScreen> {
     isModerator = widget.isModerator;
     category = widget.category;
     prompt = widget.prompt;
+    name = window.localStorage['name'];
   }
 
   @override
@@ -86,32 +94,66 @@ class _VoteScreenState extends State<VoteScreen> {
                                       Answer answer = answers[i];
                                       return AnswerCard(
                                           answer: answer,
-                                          onSelect: (e) {
+                                          onSelect: () {
                                             if (isModerator) return;
                                             setState(() {
-                                              selectedAnswer = e.text;
+                                              selectedIndex = i;
                                             });
                                           },
                                           isSelected:
-                                              (selectedAnswer == answer.text) ??
-                                                  false,
+                                              (selectedIndex == i) ?? false,
                                           showName: isModerator);
                                     }),
                               ),
-                              RaisedButton(
-                                  onPressed: () {
-                                    // confirm and move to scoring
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.all(8),
-                                    width:
-                                        MediaQuery.of(context).size.width * .6,
-                                    child: Center(
-                                        child: Text(
-                                      isModerator ? 'See results' : 'Vote',
-                                      style: TextStyle(fontSize: 15),
-                                    )),
-                                  )),
+                              !isModerator
+                                  ? RaisedButton(
+                                      onPressed: () async {
+                                        bool shouldVote =
+                                            await showConfirmDialog(
+                                                'Lock in vote?', context);
+                                        if (!shouldVote) return;
+
+                                        // get selected answer
+                                        Answer selectedAnswer;
+                                        try {
+                                          selectedAnswer =
+                                              answers[selectedIndex];
+                                        } catch (e) {
+                                          await showDialog(
+                                              context: context,
+                                              builder: (context) => AlertDialog(
+                                                    title: Text(
+                                                        'No answer selected'),
+                                                    actions: [
+                                                      FlatButton(
+                                                          onPressed: () =>
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop(),
+                                                          child: Text('Ok'))
+                                                    ],
+                                                  ));
+                                          return;
+                                        }
+
+                                        database.submitVote(
+                                            selectedAnswer, name);
+                                        setState(() {
+                                          voteSubmitted = true;
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.all(8),
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                .6,
+                                        child: Center(
+                                            child: Text(
+                                          'Vote',
+                                          style: TextStyle(fontSize: 15),
+                                        )),
+                                      ))
+                                  : Container(),
                               SizedBox(
                                 height: 20,
                               )
