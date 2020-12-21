@@ -1,1 +1,89 @@
-class Database {}
+import 'package:balderdashio/business_logic/models/answer.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+class Database {
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  Future<bool> addUser(String name) async {
+    DocumentReference docRef =
+        firestore.collection('balderdash_users').doc(name);
+
+    DocumentSnapshot snapshot = await docRef.get();
+    if (snapshot.exists) return false;
+
+    docRef.set({'name': name, 'score': 0, 'isModerator': false});
+    //.add();
+    firestore.collection('balderdash_logic').doc('gamestate').update({
+      'moderatorOrder': FieldValue.arrayUnion([name])
+    });
+    return true;
+  }
+
+  void updateModStatus(String name, bool isModerator) {
+    firestore
+        .collection('balderdash_users')
+        .doc(name)
+        .update({'isModerator': isModerator});
+  }
+
+  Future<List<QuerySnapshot>> fetchPlayers() async {
+    QuerySnapshot players =
+        await firestore.collection('balderdash_users').get();
+    QuerySnapshot logic = await firestore.collection('balderdash_logic').get();
+
+    return [players, logic];
+  }
+
+  void startGame() {
+    firestore
+        .collection('balderdash_logic')
+        .doc('gamestate')
+        .update({'gameStarted': true, 'gamePhase': 2});
+  }
+
+  void submitPrompt(String category, String prompt) {
+    firestore
+        .collection('balderdash_logic')
+        .doc('gamestate')
+        .update({'activeCategory': category, 'activePrompt': prompt});
+  }
+
+  Future<List<String>> getPrompt() async {
+    DocumentSnapshot snapshot =
+        await firestore.collection('balderdash_logic').doc('gamestate').get();
+
+    String category = snapshot.data()['activeCategory'];
+    String prompt = snapshot.data()['activePrompt'];
+
+    return [category, prompt];
+  }
+
+  void submitAnswer(Answer answer) {
+    String text = answer.text;
+    String creator = answer.creator;
+    List<String> votes = answer.votes;
+    bool isReal = answer.isReal;
+
+    firestore.collection('balderdash_answers').doc('$creator answer').set(
+        {'text': text, 'creator': creator, 'votes': votes, 'isReal': isReal});
+  }
+
+  Stream<QuerySnapshot> listenForAnswers() {
+    return firestore.collection('balderdash_answers').snapshots();
+  }
+
+  Stream<DocumentSnapshot> gamestateStream() {
+    return firestore
+        .collection('balderdash_logic')
+        .doc('gamestate')
+        .snapshots();
+  }
+
+  void updateGamePhase(int gamePhase) {
+    firestore
+        .collection('balderdash_logic')
+        .doc('gamestate')
+        .update({'gamePhase': gamePhase});
+  }
+}

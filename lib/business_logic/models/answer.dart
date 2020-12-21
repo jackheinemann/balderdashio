@@ -4,10 +4,5 @@ class Answer {
   List<String> votes;
   bool isReal;
 
-  Answer({this.text, this.creator, this.votes, this.isReal}) {
-    if (creator == 'Real')
-      isReal = true;
-    else
-      isReal = false;
-  }
+  Answer({this.text, this.creator, this.votes, this.isReal});
 }

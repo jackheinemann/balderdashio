@@ -1,5 +1,7 @@
 import 'dart:html';
 
+import 'package:balderdashio/business_logic/services/database.dart';
+import 'package:balderdashio/ui/screens/lobby_screen.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -9,6 +11,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   TextEditingController nameController = new TextEditingController();
+
+  Database database = new Database();
 
   @override
   Widget build(BuildContext context) {
@@ -46,19 +50,32 @@ class _LoginScreenState extends State<LoginScreen> {
               Padding(
                 padding: const EdgeInsets.only(top: 30.0),
                 child: RaisedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       Storage storage = window.localStorage;
 
-                      if (storage['name'] == null)
-                        print('no name saved');
-                      else
-                        print(storage['name']);
-                      // saved to local storage then navigate
                       String name = nameController.text;
                       if (name == '') return;
 
-                      print('submitted name $name');
+                      // save to local storage and firestore
                       storage['name'] = name;
+                      bool userAdded = await database.addUser(name);
+
+                      if (!userAdded) {
+                        AlertDialog dialog = AlertDialog(
+                          title: Text('User already exists with this name'),
+                          content: Text('Please enter a different name.'),
+                          actions: [
+                            FlatButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: Text('Ok'))
+                          ],
+                        );
+                        showDialog(
+                            context: context, builder: (context) => dialog);
+                        return;
+                      }
+
+                      database.updateGamePhase(1);
                     },
                     child: Container(
                       padding: EdgeInsets.all(8),

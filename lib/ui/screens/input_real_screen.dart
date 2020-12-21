@@ -1,15 +1,22 @@
 import 'dart:html';
 
+import 'package:balderdashio/business_logic/services/confirm_dialog.dart';
+import 'package:balderdashio/business_logic/services/database.dart';
 import 'package:balderdashio/ui/screens/input_answer_screen.dart';
 import 'package:flutter/material.dart';
 
 class InputRealScreen extends StatefulWidget {
+  bool isModerator;
+
+  // GAME PHASE 2
+  InputRealScreen({@required this.isModerator});
+
   @override
   _InputRealScreenState createState() => _InputRealScreenState();
 }
 
 class _InputRealScreenState extends State<InputRealScreen> {
-  bool isModerator = true;
+  bool isModerator;
   String name = window.localStorage['name'] + ', y' ?? 'Y'; //load this in
 
   List<String> categories = ['Definition', 'Person', 'Acronym', 'Movie', 'Law'];
@@ -17,6 +24,14 @@ class _InputRealScreenState extends State<InputRealScreen> {
   TextEditingController controller = new TextEditingController();
 
   String selectedCategory;
+
+  Database database = new Database();
+
+  @override
+  void initState() {
+    super.initState();
+    isModerator = widget.isModerator;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,12 +102,18 @@ class _InputRealScreenState extends State<InputRealScreen> {
                       height: 20,
                     ),
                     RaisedButton(
-                        onPressed: () {
-                          // confirm and move to user inputs
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => InputAnswerScreen()));
+                        onPressed: () async {
+                          String category = selectedCategory;
+                          String prompt = controller.text;
+
+                          bool shouldSubmit = await showConfirmDialog(
+                              'Submit prompt?', context);
+
+                          if (!shouldSubmit) return;
+
+                          database.submitPrompt(category, prompt);
+
+                          database.updateGamePhase(3);
                         },
                         child: Container(
                           padding: EdgeInsets.all(8),
