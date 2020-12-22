@@ -13,7 +13,11 @@ class Database {
     DocumentSnapshot snapshot = await docRef.get();
     if (snapshot.exists) return false;
 
-    docRef.set({'name': name, 'score': 0, 'isModerator': false});
+    firestore
+        .collection('balderdash_users')
+        .doc(name)
+        .set({'name': name, 'score': 0, 'isModerator': false}).catchError(
+            (err) => print(err));
     //.add();
     firestore.collection('balderdash_logic').doc('gamestate').update({
       'moderatorOrder': FieldValue.arrayUnion([name])
@@ -161,6 +165,21 @@ class Database {
       'votesSubmitted': 0,
       'gamePhase': 2,
       'moderatorIndex': modIndex
+    });
+
+    return true;
+  }
+
+  Future<bool> endGame() async {
+    CollectionReference logicColl = firestore.collection('balderdash_logic');
+
+    await logicColl.doc('gamestate').update({
+      'gameStarted': false,
+      'gamePhase': 0,
+      'moderatorOrder': [],
+      'moderatorIndex': 0,
+      'answersSubmitted': 0,
+      'votesSubmitted': 0,
     });
 
     return true;

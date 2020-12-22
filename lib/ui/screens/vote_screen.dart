@@ -44,6 +44,14 @@ class _VoteScreenState extends State<VoteScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (voteSubmitted) {
+      return Scaffold(
+        body: Center(
+          child: Text('Waiting for all votes to be in',
+              style: TextStyle(fontSize: 18)),
+        ),
+      );
+    }
     return FutureBuilder<List<Answer>>(
         future: database.getAnswers(),
         builder: (context, snapshot) {

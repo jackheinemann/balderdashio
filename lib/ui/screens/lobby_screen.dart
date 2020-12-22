@@ -45,54 +45,58 @@ class _LobbyScreenState extends State<LobbyScreen> {
             // get list of names, which is essentially just moderator order list
             List<String> names = List<String>.from(data['moderatorOrder']);
 
-            return Scaffold(
-              appBar: AppBar(
-                title: Text('Balderdash'),
-              ),
-              body: Container(
-                width: MediaQuery.of(context).size.width,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text('Players in lobby',
-                            style: TextStyle(fontSize: 18)),
-                        SizedBox(height: 10),
-                        Expanded(
-                          child: ListView.builder(
-                              itemCount: names.length,
-                              itemBuilder: (context, i) {
-                                return UserCard(name: names[i]);
-                              }),
-                        ),
-                        (isModerator)
-                            ? RaisedButton(
-                                onPressed: () async {
-                                  // maybe confirm and then start the game
-                                  bool startGame = await showConfirmDialog(
-                                      'Start the game?', context);
-                                  if (!startGame) return;
-                                  database
-                                      .startGame(); //updates gamePhase, which navigates essentially
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.all(8),
-                                  width: MediaQuery.of(context).size.width * .6,
-                                  child: Center(
-                                      child: Text(
-                                    'Start Game',
-                                    style: TextStyle(fontSize: 15),
-                                  )),
-                                ))
-                            : Container(),
-                        SizedBox(
-                          height: 30,
-                        )
-                      ]),
+            return WillPopScope(
+              onWillPop: () async => false,
+              child: Scaffold(
+                appBar: AppBar(
+                  title: Text('Balderdash'),
+                ),
+                body: Container(
+                  width: MediaQuery.of(context).size.width,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Text('Players in lobby',
+                              style: TextStyle(fontSize: 18)),
+                          SizedBox(height: 10),
+                          Expanded(
+                            child: ListView.builder(
+                                itemCount: names.length,
+                                itemBuilder: (context, i) {
+                                  return UserCard(name: names[i]);
+                                }),
+                          ),
+                          (isModerator)
+                              ? RaisedButton(
+                                  onPressed: () async {
+                                    // maybe confirm and then start the game
+                                    bool startGame = await showConfirmDialog(
+                                        'Start the game?', context);
+                                    if (!startGame) return;
+                                    database
+                                        .startGame(); //updates gamePhase, which navigates essentially
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.all(8),
+                                    width:
+                                        MediaQuery.of(context).size.width * .6,
+                                    child: Center(
+                                        child: Text(
+                                      'Start Game',
+                                      style: TextStyle(fontSize: 15),
+                                    )),
+                                  ))
+                              : Container(),
+                          SizedBox(
+                            height: 30,
+                          )
+                        ]),
+                  ),
                 ),
               ),
             );

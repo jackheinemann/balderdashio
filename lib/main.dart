@@ -53,14 +53,30 @@ Widget validateIncomingUser(
   bool isModerator;
   Map<String, dynamic> data = snapshot.data.data();
 
+  bool gameStarted = data['gameStarted'];
+
   //check moderator status
   List<String> moderatorOrder = List<String>.from(data['moderatorOrder']);
+  if (moderatorOrder.length < 1)
+    return LoginScreen(); // this covers the first player who joins
+
+  // after the first player joins, check for his/her moderatorIndex to set them as moderator
   int moderatorIndex = data['moderatorIndex'];
   if (moderatorOrder[moderatorIndex] == name) {
     isModerator = true;
     database.updateModStatus(name, true);
   } else
     isModerator = false;
+
+  // filter out anyone who isnt a moderator but has a saved name and send them to the loginScreen
+  if (!isModerator && !gameStarted) {
+    // you are 1) not the moderator, 2) the game has not started, 3) you have a saved name locally
+    Database database = new Database();
+    database.addUser(name);
+    return LobbyScreen(
+      isModerator: isModerator,
+    );
+  }
 
   int gamePhase = data['gamePhase'];
 
@@ -73,10 +89,10 @@ Widget validateIncomingUser(
     InputRealScreen(isModerator: isModerator),
     InputAnswerScreen(isModerator: isModerator),
     VoteScreen(isModerator: isModerator, category: category, prompt: prompt),
-    //ResultsScreen(isModerator: isModerator),
-    ScoreScreen(
-      isModerator: isModerator,
-    )
+    ResultsScreen(isModerator: isModerator),
+    // ScoreScreen(
+    //   isModerator: isModerator,
+    // )
   ];
 
   return gamePhases[gamePhase];

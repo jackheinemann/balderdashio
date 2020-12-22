@@ -5,6 +5,9 @@ import 'package:balderdashio/ui/screens/lobby_screen.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
+  bool isModerator;
+
+  LoginScreen({this.isModerator = false});
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -13,6 +16,15 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController nameController = new TextEditingController();
 
   Database database = new Database();
+
+  bool isModerator;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    isModerator = widget.isModerator;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +85,16 @@ class _LoginScreenState extends State<LoginScreen> {
                         showDialog(
                             context: context, builder: (context) => dialog);
                         return;
+                      }
+                      database.updateGamePhase(
+                          1); // this will only do anything navigation wise for the very first person to join
+                      // now check for mod status and regular navigate
+                      if (!isModerator) {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    LobbyScreen(isModerator: isModerator)));
                       }
                     },
                     child: Container(

@@ -40,6 +40,19 @@ class _ScoreScreenState extends State<ScoreScreen> {
             return Scaffold(
               appBar: AppBar(
                 title: Text('Balderdash'),
+                actions: [
+                  isModerator
+                      ? IconButton(
+                          icon: Icon(Icons.dangerous),
+                          onPressed: () async {
+                            bool shouldDelete = await showConfirmDialog(
+                                'Reset the entire game and end it?', context);
+                            if (!shouldDelete) return;
+
+                            database.endGame();
+                          })
+                      : Container()
+                ],
               ),
               body: Padding(
                 padding: const EdgeInsets.all(8.0),
