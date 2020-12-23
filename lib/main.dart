@@ -95,5 +95,6 @@ Widget validateIncomingUser(
     // )
   ];
 
+  print('gamephase: $gamePhase so going to ${gamePhases[gamePhase]}');
   return gamePhases[gamePhase];
 }
