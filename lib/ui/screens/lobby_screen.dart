@@ -88,7 +88,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                                         MediaQuery.of(context).size.width * .6,
                                     child: Center(
                                         child: Text(
-                                      'Start Game',
+                                      'Begin Game',
                                       style: TextStyle(fontSize: 15),
                                     )),
                                   ))
