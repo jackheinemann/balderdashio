@@ -127,7 +127,7 @@ class Database {
       'votes': FieldValue.arrayUnion([voter])
     });
 
-    if (!isReal)
+    if (!isReal && creator != voter)
       firestore
           .collection('balderdash_users')
           .doc(creator)
@@ -164,8 +164,9 @@ class Database {
     // check if moderator index is at its max
     DocumentSnapshot snapshot = await gamestateRef.get();
     int modIndex = snapshot.data()['moderatorIndex'];
-    int playerCount =
-        List<String>.from(snapshot.data()['moderatorOrder']).length;
+    List<String> modOrder =
+        List<String>.from(snapshot.data()['moderatorOrder']);
+    int playerCount = modOrder.length;
 
     if (modIndex == playerCount - 1)
       modIndex = 0;
@@ -182,6 +183,13 @@ class Database {
       'gamePhase': 2,
       'moderatorIndex': modIndex
     });
+
+    for (String name in modOrder) {
+      firestore
+          .collection('balderdash_answers')
+          .doc('$name answer')
+          .update({'votes': []});
+    }
 
     return true;
   }

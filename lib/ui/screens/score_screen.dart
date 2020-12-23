@@ -37,60 +37,64 @@ class _ScoreScreenState extends State<ScoreScreen> {
           if (snapshot.hasData) {
             List<Player> players = snapshot.data;
             players.sort((a, b) => b.score.compareTo(a.score));
-            return Scaffold(
-              appBar: AppBar(
-                title: Text('Balderdash'),
-                actions: [
-                  isModerator
-                      ? IconButton(
-                          icon: Icon(Icons.dangerous),
-                          onPressed: () async {
-                            bool shouldDelete = await showConfirmDialog(
-                                'Reset the entire game and end it?', context);
-                            if (!shouldDelete) return;
-
-                            database.endGame();
-                          })
-                      : Container()
-                ],
-              ),
-              body: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Text('Current Scoreboard', style: TextStyle(fontSize: 18)),
-                    Expanded(
-                        child: ListView.builder(
-                      itemCount: players.length,
-                      itemBuilder: (context, i) {
-                        Player player = players[i];
-                        return ScoreCard(player: player);
-                      },
-                    )),
+            return WillPopScope(
+              onWillPop: () async => false,
+              child: Scaffold(
+                appBar: AppBar(
+                  title: Text('Balderdash'),
+                  actions: [
                     isModerator
-                        ? RaisedButton(
+                        ? IconButton(
+                            icon: Icon(Icons.dangerous),
                             onPressed: () async {
-                              // confirm and restart the round with a new moderator
-                              bool endRound = await showConfirmDialog(
-                                  'End the round?', context);
-                              if (!endRound) return;
+                              bool shouldDelete = await showConfirmDialog(
+                                  'Reset the entire game and end it?', context);
+                              if (!shouldDelete) return;
 
-                              database.endRound();
-                            },
-                            child: Container(
-                              padding: EdgeInsets.all(8),
-                              width: MediaQuery.of(context).size.width * .6,
-                              child: Center(
-                                  child: Text(
-                                'Continue',
-                                style: TextStyle(fontSize: 15),
-                              )),
-                            ))
-                        : Container(),
-                    SizedBox(
-                      height: 20,
-                    )
+                              database.endGame();
+                            })
+                        : Container()
                   ],
+                ),
+                body: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Text('Current Scoreboard',
+                          style: TextStyle(fontSize: 18)),
+                      Expanded(
+                          child: ListView.builder(
+                        itemCount: players.length,
+                        itemBuilder: (context, i) {
+                          Player player = players[i];
+                          return ScoreCard(player: player);
+                        },
+                      )),
+                      isModerator
+                          ? RaisedButton(
+                              onPressed: () async {
+                                // confirm and restart the round with a new moderator
+                                bool endRound = await showConfirmDialog(
+                                    'End the round?', context);
+                                if (!endRound) return;
+
+                                database.endRound();
+                              },
+                              child: Container(
+                                padding: EdgeInsets.all(8),
+                                width: MediaQuery.of(context).size.width * .6,
+                                child: Center(
+                                    child: Text(
+                                  'Continue',
+                                  style: TextStyle(fontSize: 15),
+                                )),
+                              ))
+                          : Container(),
+                      SizedBox(
+                        height: 20,
+                      )
+                    ],
+                  ),
                 ),
               ),
             );

@@ -21,6 +21,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
   Database database = new Database();
 
+  bool showScores = false;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -40,57 +42,60 @@ class _ResultsScreenState extends State<ResultsScreen> {
           if (snapshot.hasData) {
             List<Answer> answers = snapshot.data;
             answers.sort((a, b) => b.votes.length.compareTo(a.votes.length));
-            return WillPopScope(
-              onWillPop: () async => false,
-              child: Scaffold(
-                  appBar: AppBar(
-                    title: Text('Balderdash'),
-                  ),
-                  body: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      height: MediaQuery.of(context).size.height,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            height: 10,
+            return !showScores
+                ? WillPopScope(
+                    onWillPop: () async => false,
+                    child: Scaffold(
+                        appBar: AppBar(
+                          title: Text('Balderdash'),
+                        ),
+                        body: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            height: MediaQuery.of(context).size.height,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Expanded(
+                                  child: ListView.builder(
+                                      itemCount: answers.length,
+                                      itemBuilder: (context, i) {
+                                        Answer answer = answers[i];
+                                        return ResultsCard(answer: answer);
+                                      }),
+                                ),
+                                RaisedButton(
+                                    onPressed: () {
+                                      // confirm and move to scoring
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => ScoreScreen(
+                                                    isModerator: isModerator,
+                                                  )));
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.all(8),
+                                      width: MediaQuery.of(context).size.width *
+                                          .6,
+                                      child: Center(
+                                          child: Text(
+                                        'View Scoreboard',
+                                        style: TextStyle(fontSize: 15),
+                                      )),
+                                    )),
+                                SizedBox(
+                                  height: 20,
+                                )
+                              ],
+                            ),
                           ),
-                          Expanded(
-                            child: ListView.builder(
-                                itemCount: answers.length,
-                                itemBuilder: (context, i) {
-                                  Answer answer = answers[i];
-                                  return ResultsCard(answer: answer);
-                                }),
-                          ),
-                          RaisedButton(
-                              onPressed: () {
-                                // confirm and move to scoring
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => ScoreScreen(
-                                              isModerator: isModerator,
-                                            )));
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(8),
-                                width: MediaQuery.of(context).size.width * .6,
-                                child: Center(
-                                    child: Text(
-                                  'View Scoreboard',
-                                  style: TextStyle(fontSize: 15),
-                                )),
-                              )),
-                          SizedBox(
-                            height: 20,
-                          )
-                        ],
-                      ),
-                    ),
-                  )),
-            );
+                        )),
+                  )
+                : ScoreScreen(isModerator: isModerator);
           }
           return Center(
             child: CircularProgressIndicator(),
