@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:balderdashio/business_logic/models/answer.dart';
 import 'package:balderdashio/business_logic/models/player.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -70,8 +72,15 @@ class Database {
     List<String> votes = answer.votes;
     bool isReal = answer.isReal;
 
-    firestore.collection('balderdash_answers').doc('$creator answer').set(
-        {'text': text, 'creator': creator, 'votes': votes, 'isReal': isReal});
+    int randomSorter = Random().nextInt(100);
+
+    firestore.collection('balderdash_answers').doc('$creator answer').set({
+      'text': text,
+      'creator': creator,
+      'votes': votes,
+      'isReal': isReal,
+      'random': randomSorter
+    });
 
     firestore
         .collection('balderdash_logic')
@@ -96,7 +105,7 @@ class Database {
   Future<List<Answer>> getAnswers() async {
     QuerySnapshot answersSnap = await firestore
         .collection('balderdash_answers')
-        .orderBy('text', descending: true)
+        .orderBy('random', descending: false)
         .get();
 
     List<Answer> answers = [];

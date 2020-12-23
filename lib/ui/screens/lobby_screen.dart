@@ -49,6 +49,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
               onWillPop: () async => false,
               child: Scaffold(
                 appBar: AppBar(
+                  leading: Container(),
                   title: Text('Balderdash'),
                 ),
                 body: Container(

@@ -87,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         return;
                       }
                       database.updateGamePhase(
-                          1); // this will only do anything navigation wise for the very first person to join
+                          1); // this will only do anything navigation wise for the very first person to join (EDIT: Or if someone has to re-enter a name mid game)
                       // now check for mod status and regular navigate
                       if (!isModerator) {
                         Navigator.push(
