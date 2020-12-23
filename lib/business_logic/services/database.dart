@@ -119,6 +119,7 @@ class Database {
 
   void submitVote(Answer answer, String voter) {
     String creator = answer.creator;
+    bool isReal = answer.isReal;
 
     String docID = '$creator answer';
 
@@ -126,10 +127,16 @@ class Database {
       'votes': FieldValue.arrayUnion([voter])
     });
 
-    firestore
-        .collection('balderdash_users')
-        .doc(creator)
-        .update({'score': FieldValue.increment(1)});
+    if (!isReal)
+      firestore
+          .collection('balderdash_users')
+          .doc(creator)
+          .update({'score': FieldValue.increment(1)});
+    else
+      firestore
+          .collection('balderdash_users')
+          .doc(voter)
+          .update({'score': FieldValue.increment(2)});
 
     firestore
         .collection('balderdash_logic')
