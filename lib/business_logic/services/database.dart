@@ -127,17 +127,22 @@ class Database {
       'votes': FieldValue.arrayUnion([voter])
     });
 
-    if (!isReal && creator != voter)
-      firestore
-          .collection('balderdash_users')
-          .doc(creator)
-          .update({'score': FieldValue.increment(1)});
-    else
-      firestore
-          .collection('balderdash_users')
-          .doc(voter)
-          .update({'score': FieldValue.increment(2)});
+    if (creator != voter) {
+      // you are not voting for yourself
+      if (isReal) {
+        // the answer youre voting for is real
+        firestore
+            .collection('balderdash_users')
+            .doc(voter)
+            .update({'score': FieldValue.increment(2)}); // voter gets 2 points
+      } else {
+        // the answer youre voting for is fake
+        firestore.collection('balderdash_users').doc(creator).update(
+            {'score': FieldValue.increment(1)}); // the creator gets 1 point
+      }
+    }
 
+    //no matter what, votesSubmitted increments
     firestore
         .collection('balderdash_logic')
         .doc('gamestate')
